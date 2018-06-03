@@ -14,13 +14,16 @@ class LaraPay
      * @var int
      */
     protected $cacheTime = 172800;
+    private $hook, $expiryInSeconds, $urlPrefix;
 
-    public function __construct()
+    public function __construct(string $hook, int $expiryInSeconds)
     {
         Config::setApiToken(config('larapay.tokenId'));
         Config::setServiceId(config('larapay.serviceId'));
+        $this->hook = $hook;
+        $this->expiryInSeconds = $expiryInSeconds;
+        $this->urlPrefix = env('app.url');
     }
-
     /**
      * Returns all payment methods
      *
@@ -28,7 +31,7 @@ class LaraPay
      */
     public function methods()
     {
-        return collect(Paymentmethods::getList());
+        return collect($this->handleResponse(Paymentmethods::getList()));
     }
 
     /**
@@ -58,14 +61,38 @@ class LaraPay
     }
 
     /**
-     * Start transaction
+     * Start a transaction
      *
      * @param array $arr
      * @return \Paynl\Result\Transaction\Start
      */
-    public function startTransaction(array $arr = [])
+    public function startTransaction(string $currency, float $amount, string $returnurl, string $description)
     {
-        return Transaction::start($arr);
+
+        $data = [
+
+            // Basic transaction information
+            "amount" =>         $amount,
+            "returnUrl" =>      $this->urlPrefix .  $returnurl,
+            "currency" =>       $currency,
+            "description" =>    $description,
+
+            // Information about transaction logistics
+            "exchangeUrl" =>    $this->urlPrefix . $this->hook,
+            "expireDate" =>     new \DateTime('+' . $this->expiryInSeconds . ' seconds'),
+
+            // Additional information
+            "ipaddress" =>      $_SERVER["REMOTE_ADDR"],
+            "testmode" =>       env('larapay.testmode'),
+
+            ];
+        $transaction = Transaction::start($data);
+
+        return [
+                "transactionId" => $transaction->getTransactionId(),
+                "redirectUrl" => $transaction->getRedirectUrl(),
+                "paymentreference" => $transaction->getPaymentReference(),
+            ];
     }
 
     /**
