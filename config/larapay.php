@@ -21,4 +21,9 @@ return [
      * Service ID
      */
     'serviceId' => env('PAY_SERVICE_ID'),
+
+    /*
+     *  Conduct transactions in Test mode
+     */
+    'testmode' => env('PAY_TESTMODE')
 ];
