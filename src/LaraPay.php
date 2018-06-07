@@ -16,13 +16,18 @@ class LaraPay
     protected $cacheTime = 172800;
     private $hook, $expiryInSeconds, $urlPrefix;
 
-    public function __construct(string $hook, int $expiryInSeconds)
+    public function __construct(string $hook, int $expiryInSeconds, string $urlPrefix = null)
     {
         Config::setApiToken(config('larapay.tokenId'));
         Config::setServiceId(config('larapay.serviceId'));
         $this->hook = $hook;
         $this->expiryInSeconds = $expiryInSeconds;
-        $this->urlPrefix = env('app.url');
+        if (empty($urlPrefix)) {
+            $this->urlPrefix = config('app.url');
+        }else
+        {
+            $this->urlPrefix = $urlPrefix;
+        }
     }
     /**
      * Returns all payment methods
@@ -31,7 +36,7 @@ class LaraPay
      */
     public function methods()
     {
-        return collect($this->handleResponse(Paymentmethods::getList()));
+        return collect(Paymentmethods::getList());
     }
 
     /**
@@ -96,13 +101,19 @@ class LaraPay
     }
 
     /**
-     * Returns a transaction
+     * Returns a transaction status.
      *
      * @param $id
      * @return \Paynl\Result\Transaction\Transaction
      */
     public function getTransaction($id)
     {
-        return Transaction::get($id);
+        return Transaction::get($id)->getData();
+    }
+
+    public function getForExchange()
+    {
+        $transaction = Transaction::getForExchange();
+        return $transaction->getData();
     }
 }
