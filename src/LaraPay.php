@@ -65,13 +65,18 @@ class LaraPay
         });
     }
 
+
     /**
-     * Start a transaction
-     *
-     * @param array $arr
-     * @return \Paynl\Result\Transaction\Start
+     * Starts a transaction
+     * @param string $currency
+     * @param float $amount
+     * @param string $returnurl
+     * @param string $description
+     * @param string $language
+     * @return array
+     * @throws \Paynl\Error\Error
      */
-    public function startTransaction(string $currency, float $amount, string $returnurl, string $description)
+    public function startTransaction(string $currency, float $amount, string $returnurl, string $description, string $language = "NL")
     {
 
         $data = [
@@ -89,6 +94,10 @@ class LaraPay
             // Additional information
             "ipaddress" =>      $_SERVER["REMOTE_ADDR"],
             "testmode" =>       env('larapay.testmode'),
+
+            "enduser"   => [
+                'language'  => $language
+            ],
 
             ];
         $transaction = Transaction::start($data);
