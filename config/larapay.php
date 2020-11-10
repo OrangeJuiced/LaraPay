@@ -30,5 +30,5 @@ return [
     /*
      * Hook URL prefix
      */
-    'hookPrefix' => env('PAY_HOOK_PREFIX')
+    'hookURLPrefix' => env('PAY_HOOK_URL_PREFIX')
 ];

@@ -2,6 +2,7 @@
 
 namespace LaraPay;
 
+use Illuminate\Support\Collection;
 use Paynl\Config;
 use Paynl\Error\Api;
 use Paynl\Error\Error;
@@ -19,33 +20,33 @@ class LaraPay
      */
     protected $cacheTime = 172800;
 
-    private $hook, $expiryInSeconds, $urlPrefix, $hookPrefix;
+    private $hookRoute, $expiryInSeconds, $returnURLPrefix, $hookURLPrefix;
 
     /**
      * LaraPay constructor.
      *
-     * @param string $hook
+     * @param string $hookRoute
      * @param int $expiryInSeconds
-     * @param string|null $urlPrefix
-     * @param string|null $hookPrefix
+     * @param string|null $returnURLPrefix
+     * @param string|null $hookURLPrefix
      */
-    public function __construct(string $hook, int $expiryInSeconds, string $urlPrefix = null, string $hookPrefix = null)
+    public function __construct(string $hookRoute, int $expiryInSeconds, string $returnURLPrefix = null, string $hookURLPrefix = null)
     {
         Config::setApiToken(config('larapay.tokenId'));
         Config::setServiceId(config('larapay.serviceId'));
 
-        $this->hookPrefix = $hookPrefix;
-        $this->hook = $hook;
+        $this->hookURLPrefix = $hookURLPrefix;
+        $this->hookRoute = $hookRoute;
         $this->expiryInSeconds = $expiryInSeconds;
 
-        empty($urlPrefix) ? $this->urlPrefix = config('app.url') : $this->urlPrefix = $urlPrefix;
-        empty($hookPrefix) ? $this->hookPrefix = config('larapay.hookPrefix', config('app.url')) : $this->hookPrefix = $hookPrefix;
+        empty($returnURLPrefix) ? $this->returnURLPrefix = config('app.url') : $this->returnURLPrefix = $returnURLPrefix;
+        empty($hookURLPrefix) ? $this->hookURLPrefix = config('larapay.hookURLPrefix', config('app.url')) : $this->hookURLPrefix = $hookURLPrefix;
     }
 
     /**
      * Returns all payment methods
      *
-     * @return \Illuminate\Support\Collection
+     * @return Collection
      */
     public function methods()
     {
@@ -95,12 +96,12 @@ class LaraPay
         $data = [
             // Basic transaction information
             "amount" => $amount,
-            "returnUrl" => $this->urlPrefix .  $returnUrl,
+            "returnUrl" => $this->returnURLPrefix .  $returnUrl,
             "currency" => $currency,
             "description" => $description,
 
             // Information about transaction logistics
-            "exchangeUrl" => isset($this->hookPrefix) ? $this->hookPrefix . $this->hook : $this->urlPrefix . $this->hook,
+            "exchangeUrl" => isset($this->hookURLPrefix) ? $this->hookURLPrefix . $this->hookRoute : $this->returnURLPrefix . $this->hookRoute,
             "expireDate" => new \DateTime('+' . $this->expiryInSeconds . ' seconds'),
 
             // Additional information
