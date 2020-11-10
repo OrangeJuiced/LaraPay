@@ -19,7 +19,7 @@ class LaraPay
      */
     protected $cacheTime = 172800;
 
-    private $hook, $expiryInSeconds, $urlPrefix;
+    private $hook, $expiryInSeconds, $urlPrefix, $hookPrefix;
 
     /**
      * LaraPay constructor.
@@ -27,12 +27,14 @@ class LaraPay
      * @param string $hook
      * @param int $expiryInSeconds
      * @param string|null $urlPrefix
+     * @param string|null $hookPrefix
      */
-    public function __construct(string $hook, int $expiryInSeconds, string $urlPrefix = null)
+    public function __construct(string $hook, int $expiryInSeconds, string $urlPrefix = null, string $hookPrefix = null)
     {
         Config::setApiToken(config('larapay.tokenId'));
         Config::setServiceId(config('larapay.serviceId'));
 
+        $this->hookPrefix = $hookPrefix;
         $this->hook = $hook;
         $this->expiryInSeconds = $expiryInSeconds;
 
@@ -101,7 +103,7 @@ class LaraPay
             "description" => $description,
 
             // Information about transaction logistics
-            "exchangeUrl" => $this->urlPrefix . $this->hook,
+            "exchangeUrl" => isset($this->hookPrefix) ? $this->hookPrefix . $this->hook : $this->urlPrefix . $this->hook,
             "expireDate" => new \DateTime('+' . $this->expiryInSeconds . ' seconds'),
 
             // Additional information
