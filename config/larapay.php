@@ -28,7 +28,7 @@ return [
     'testmode' => env('PAY_TESTMODE'),
 
     /*
-     * Service ID
+     * Hook URL prefix
      */
-    'urlPrefix' => env('PAY_URL_PREFIX')
+    'hookPrefix' => env('PAY_HOOK_PREFIX')
 ];

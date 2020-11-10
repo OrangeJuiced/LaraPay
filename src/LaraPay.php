@@ -38,11 +38,8 @@ class LaraPay
         $this->hook = $hook;
         $this->expiryInSeconds = $expiryInSeconds;
 
-        if (empty($urlPrefix)) {
-            $this->urlPrefix = config('larapay.urlPrefix');
-        } else {
-            $this->urlPrefix = $urlPrefix;
-        }
+        empty($urlPrefix) ? $this->urlPrefix = config('app.url') : $this->urlPrefix = $urlPrefix;
+        empty($hookPrefix) ? $this->hookPrefix = config('larapay.hookPrefix') : $this->hookPrefix = $hookPrefix;
     }
 
     /**
