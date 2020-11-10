@@ -25,5 +25,10 @@ return [
     /*
      *  Conduct transactions in Test mode
      */
-    'testmode' => env('PAY_TESTMODE')
+    'testmode' => env('PAY_TESTMODE'),
+
+    /*
+     * Service ID
+     */
+    'urlPrefix' => env('PAY_URL_PREFIX')
 ];
